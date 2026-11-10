@@ -1,770 +1,712 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Fire & Water: Excel Quest (SENAI Edition)</title>
-<style>
-* {
-box-sizing: border-box;
-margin: 0;
-padding: 0;
-font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Fire & Water: Excel Quest (Mobile Edition)</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            touch-action: manipulation;
+        }
 
-body {
-background-color: #070913;
-color: #f3f4f6;
-display: flex;
-flex-direction: column;
-align-items: center;
-justify-content: center;
-min-height: 100vh;
-overflow: hidden;
-}
+        body {
+            background-color: #070913;
+            color: #f3f4f6;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            overflow: hidden;
+            position: fixed;
+            width: 100%;
+            height: 100%;
+        }
 
-#game-container {
-position: relative;
-width: 900px;
-height: 520px;
-background: linear-gradient(135deg, #090d16 0%, #111827 50%, #0c0a20 100%);
-border: 2px solid rgba(56, 189, 248, 0.4);
-border-radius: 16px;
-box-shadow: 0 0 35px rgba(56, 189, 248, 0.25), inset 0 0 20px rgba(0, 0, 0, 0.6);
-overflow: hidden;
-}
+        #game-container {
+            position: relative;
+            width: 100%;
+            max-width: 900px;
+            height: 480px;
+            background: linear-gradient(135deg, #090d16 0%, #111827 50%, #0c0a20 100%);
+            border: 2px solid rgba(56, 189, 248, 0.4);
+            border-radius: 12px;
+            box-shadow: 0 0 25px rgba(56, 189, 248, 0.25);
+            overflow: hidden;
+        }
 
-canvas {
-display: block;
-background: transparent;
-}
+        canvas {
+            display: block;
+            background: transparent;
+            width: 100%;
+            height: 100%;
+        }
 
-/* HUD Superior */
-.hud {
-position: absolute;
-top: 0;
-left: 0;
-width: 100%;
-display: flex;
-justify-content: space-between;
-align-items: center;
-padding: 12px 24px;
-background: rgba(15, 23, 42, 0.82);
-backdrop-filter: blur(10px);
-border-bottom: 1px solid rgba(56, 189, 248, 0.25);
-font-weight: 600;
-font-size: 15px;
-letter-spacing: 0.5px;
-z-index: 10;
-}
+        /* HUD Superior */
+        .hud {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 16px;
+            background: rgba(15, 23, 42, 0.85);
+            backdrop-filter: blur(8px);
+            border-bottom: 1px solid rgba(56, 189, 248, 0.25);
+            font-weight: 600;
+            font-size: 13px;
+            z-index: 10;
+        }
 
-.hud-item {
-display: flex;
-align-items: center;
-gap: 8px;
-}
+        .hud-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
 
-.badge-fire { color: #f87171; text-shadow: 0 0 8px rgba(248, 113, 113, 0.6); }
-.badge-water { color: #38bdf8; text-shadow: 0 0 8px rgba(56, 189, 248, 0.6); }
+        .badge-fire { color: #f87171; }
+        .badge-water { color: #38bdf8; }
+        .badge-time { color: #a78bfa; }
 
-/* Telas de Menu e Quiz */
-.overlay {
-position: absolute;
-top: 0;
-left: 0;
-width: 100%;
-height: 100%;
-background: rgba(7, 9, 19, 0.94);
-backdrop-filter: blur(14px);
-display: flex;
-flex-direction: column;
-align-items: center;
-justify-content: center;
-z-index: 20;
-padding: 30px;
-text-align: center;
-}
+        /* Controles Mobile na Tela */
+        .mobile-controls {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+            max-width: 900px;
+            padding: 10px 15px;
+            background: rgba(15, 23, 42, 0.95);
+            border-top: 1px solid rgba(56, 189, 248, 0.2);
+            user-select: none;
+            z-index: 10;
+        }
 
-.hidden {
-display: none !important;
-}
+        .control-group {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
 
-h1 {
-font-size: 2.6rem;
-margin-bottom: 10px;
-background: linear-gradient(90deg, #f87171, #38bdf8, #a78bfa);
--webkit-background-clip: text;
--webkit-text-fill-color: transparent;
-text-shadow: 0 0 25px rgba(56, 189, 248, 0.25);
-}
+        .ctrl-btn {
+            background: rgba(30, 41, 59, 0.9);
+            border: 2px solid #38bdf8;
+            color: #38bdf8;
+            font-size: 1.2rem;
+            font-weight: bold;
+            width: 55px;
+            height: 55px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+        }
 
-p.subtitle {
-font-size: 1.1rem;
-color: #94a3b8;
-margin-bottom: 25px;
-max-width: 600px;
-line-height: 1.5;
-}
+        .ctrl-btn:active {
+            background: #38bdf8;
+            color: #0f172a;
+            transform: scale(0.95);
+        }
 
-.btn {
-background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
-color: white;
-border: none;
-padding: 12px 30px;
-font-size: 1rem;
-font-weight: bold;
-border-radius: 8px;
-cursor: pointer;
-transition: all 0.2s ease;
-box-shadow: 0 4px 15px rgba(2, 132, 199, 0.4);
-margin-top: 10px;
-}
+        .btn-fire-col { border-color: #f87171; color: #f87171; }
+        .btn-fire-col:active { background: #f87171; color: #0f172a; }
 
-.btn:hover {
-transform: translateY(-2px);
-box-shadow: 0 6px 20px rgba(2, 132, 199, 0.6);
-background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%);
-}
+        .btn-water-col { border-color: #38bdf8; color: #38bdf8; }
+        .btn-water-col:active { background: #38bdf8; color: #0f172a; }
 
-/* Quiz Box */
-.quiz-box {
-background: rgba(30, 41, 59, 0.75);
-border: 1px solid rgba(56, 189, 248, 0.35);
-border-radius: 12px;
-padding: 24px;
-max-width: 650px;
-width: 100%;
-text-align: left;
-box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
-}
+        /* Telas de Menu e Quiz */
+        .overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(7, 9, 19, 0.96);
+            backdrop-filter: blur(14px);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 20;
+            padding: 20px;
+            text-align: center;
+            overflow-y: auto;
+        }
 
-.quiz-question {
-font-size: 1.2rem;
-font-weight: 600;
-margin-bottom: 20px;
-color: #f8fafc;
-}
+        .hidden {
+            display: none !important;
+        }
 
-.quiz-options {
-display: flex;
-flex-direction: column;
-gap: 10px;
-}
+        h1 {
+            font-size: 1.8rem;
+            margin-bottom: 6px;
+            background: linear-gradient(90deg, #f87171, #38bdf8, #a78bfa);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
 
-.quiz-option {
-background: rgba(15, 23, 42, 0.85);
-border: 1px solid #334155;
-padding: 12px 16px;
-border-radius: 8px;
-cursor: pointer;
-transition: all 0.2s;
-font-size: 0.95rem;
-color: #e2e8f0;
-}
+        p.subtitle {
+            font-size: 0.85rem;
+            color: #94a3b8;
+            margin-bottom: 12px;
+            max-width: 600px;
+            line-height: 1.3;
+        }
 
-.quiz-option:hover {
-border-color: #38bdf8;
-background: rgba(56, 189, 248, 0.12);
-}
+        .chars-intro {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-bottom: 15px;
+            width: 100%;
+            max-width: 500px;
+        }
 
-.controls-hint {
-margin-top: 20px;
-font-size: 0.85rem;
-color: #64748b;
-display: flex;
-gap: 20px;
-}
+        .char-card {
+            background: rgba(30, 41, 59, 0.65);
+            border: 1px solid rgba(56, 189, 248, 0.25);
+            border-radius: 8px;
+            padding: 8px 12px;
+            text-align: left;
+        }
 
-.controls-hint span b {
-color: #cbd5e1;
-}
-</style>
+        .char-card h3 {
+            font-size: 0.9rem;
+            margin-bottom: 3px;
+        }
+
+        .char-card p {
+            font-size: 0.75rem;
+            color: #cbd5e1;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
+            color: white;
+            border: none;
+            padding: 10px 24px;
+            font-size: 0.95rem;
+            font-weight: bold;
+            border-radius: 8px;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(2, 132, 199, 0.4);
+        }
+
+        /* Quiz Box */
+        .quiz-box {
+            background: rgba(30, 41, 59, 0.85);
+            border: 1px solid rgba(56, 189, 248, 0.35);
+            border-radius: 12px;
+            padding: 15px;
+            max-width: 500px;
+            width: 100%;
+            text-align: left;
+        }
+
+        .quiz-question {
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 12px;
+            color: #f8fafc;
+        }
+
+        .quiz-options {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .quiz-option {
+            background: rgba(15, 23, 42, 0.85);
+            border: 1px solid #334155;
+            padding: 10px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            color: #e2e8f0;
+        }
+    </style>
 </head>
 <body>
 
-<div id="game-container">
-<!-- HUD Superior -->
-<div class="hud">
-<div class="hud-item badge-fire">🔥 Fogo: <span id="fire-score">0</span></div>
-<div class="hud-item" id="level-indicator">Fase 1</div>
-<div class="hud-item badge-water">💧 Água: <span id="water-score">0</span></div>
-</div>
+    <div id="game-container">
+        <!-- HUD Superior -->
+        <div class="hud">
+            <div class="hud-item badge-fire">🔥 Fogo: <span id="fire-score">0</span></div>
+            <div class="hud-item badge-water">💧 Água: <span id="water-score">0</span></div>
+            <div class="hud-item" id="level-indicator">Fase 1</div>
+            <div class="hud-item badge-time">⏱️ <span id="timer-display">0</span>s</div>
+        </div>
 
-<!-- Canvas do Jogo -->
-<canvas id="gameCanvas" width="900" height="520"></canvas>
+        <!-- Canvas do Jogo -->
+        <canvas id="gameCanvas" width="900" height="480"></canvas>
 
-<!-- Tela Inicial -->
-<div id="start-screen" class="overlay">
-<h1>Fire & Water: Excel Quest</h1>
-<p class="subtitle">O desafio cooperativo definitivo para o SENAI! Cenário cyberpunk com chuva digital neon, colete suas gemas, cheguem juntos às portas e encarem os quizzes de Excel a cada 3 fases.</p>
-<button class="btn" onclick="startGame()">INICIAR JOGO</button>
-<div class="controls-hint">
-<span><b>Fireboy:</b> W A S D</span>
-<span><b>Watergirl:</b> Setas do Teclado</span>
-<span><b>Pausar:</b> P</span>
-</div>
-</div>
+        <!-- Tela Inicial -->
+        <div id="start-screen" class="overlay">
+            <h1>Fire & Water: Mobile</h1>
+            <p class="subtitle">Use os botões na tela para controlar os personagens no celular!</p>
+            
+            <div class="chars-intro">
+                <div class="char-card" style="border-color: rgba(248, 113, 113, 0.4);">
+                    <h3 style="color: #f87171;">🔥 Pyros (Fireboy)</h3>
+                    <p>Imune à lava. Usa os botões <b>Esquerda, Direita e Pular (Lado Esquerdo)</b>.</p>
+                </div>
+                <div class="char-card" style="border-color: rgba(56, 189, 248, 0.4);">
+                    <h3 style="color: #38bdf8;">💧 Aqua (Watergirl)</h3>
+                    <p>Imune à água. Usa os botões <b>Esquerda, Direita e Pular (Lado Direito)</b>.</p>
+                </div>
+                <div class="char-card" style="border-color: rgba(168, 85, 247, 0.4);">
+                    <h3 style="color: #a855f7;">👾 Glitch (O Chefe)</h3>
+                    <p>Vírus implacável em todas as fases. Corram juntos para as portas superiores!</p>
+                </div>
+            </div>
 
-<!-- Tela de Quiz (A cada 3 fases) -->
-<div id="quiz-screen" class="overlay hidden">
-<div class="quiz-box">
-<h2 style="color: #38bdf8; margin-bottom: 15px; font-size: 1.4rem;">DESAFIO DE EXCEL - SENAI</h2>
-<div class="quiz-question" id="quiz-q-text">Carregando pergunta...</div>
-<div class="quiz-options" id="quiz-options-container">
-<!-- Opções injetadas via JS -->
-</div>
-</div>
-</div>
+            <button class="btn" onclick="startGame()">JOGAR AGORA</button>
+        </div>
 
-<!-- Tela de Game Over / Vitória -->
-<div id="gameover-screen" class="overlay hidden">
-<h1 id="end-title">Fim de Jogo</h1>
-<p class="subtitle" id="end-subtitle">Você caiu no elemento errado! Tente novamente.</p>
-<button class="btn" onclick="restartLevel()">TENTAR NOVAMENTE</button>
-</div>
-</div>
+        <!-- Tela de Quiz -->
+        <div id="quiz-screen" class="overlay hidden">
+            <div class="quiz-box">
+                <h2 style="color: #38bdf8; margin-bottom: 10px; font-size: 1.2rem;">CHECKPOINT: EXCEL SENAI</h2>
+                <div class="quiz-question" id="quiz-q-text">Carregando pergunta...</div>
+                <div class="quiz-options" id="quiz-options-container"></div>
+            </div>
+        </div>
 
-<script>
-const canvas = document.getElementById('gameCanvas');
-const ctx = canvas.getContext('2d');
+        <!-- Tela de Game Over -->
+        <div id="gameover-screen" class="overlay hidden">
+            <h1 id="end-title">Fim de Jogo</h1>
+            <p class="subtitle" id="end-subtitle">Você caiu no elemento errado ou foi pego pelo chefe!</p>
+            <button class="btn" onclick="restartLevel()">TENTAR NOVAMENTE</button>
+        </div>
+    </div>
 
-// Áudio Web Audio API (Sintetizador leve e nativo)
-let audioCtx = null;
-function initAudio() {
-if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-}
+    <!-- Painel de Botões Touch para Celular -->
+    <div class="mobile-controls">
+        <!-- Controles Fireboy -->
+        <div class="control-group">
+            <button class="ctrl-btn btn-fire-col" ontouchstart="pressKey('KeyA', true)" ontouchend="pressKey('KeyA', false)" onmousedown="pressKey('KeyA', true)" onmouseup="pressKey('KeyA', false)">◀</button>
+            <button class="ctrl-btn btn-fire-col" ontouchstart="pressKey('KeyD', true)" ontouchend="pressKey('KeyD', false)" onmousedown="pressKey('KeyD', true)" onmouseup="pressKey('KeyD', false)">▶</button>
+            <button class="ctrl-btn btn-fire-col" ontouchstart="pressKey('KeyW', true)" ontouchend="pressKey('KeyW', false)" onmousedown="pressKey('KeyW', true)" onmouseup="pressKey('KeyW', false)">▲</button>
+        </div>
+        <!-- Controles Watergirl -->
+        <div class="control-group">
+            <button class="ctrl-btn btn-water-col" ontouchstart="pressKey('ArrowLeft', true)" ontouchend="pressKey('ArrowLeft', false)" onmousedown="pressKey('ArrowLeft', true)" onmouseup="pressKey('ArrowLeft', false)">◀</button>
+            <button class="ctrl-btn btn-water-col" ontouchstart="pressKey('ArrowRight', true)" ontouchend="pressKey('ArrowRight', false)" onmousedown="pressKey('ArrowRight', true)" onmouseup="pressKey('ArrowRight', false)">▶</button>
+            <button class="ctrl-btn btn-water-col" ontouchstart="pressKey('ArrowUp', true)" ontouchend="pressKey('ArrowUp', false)" onmousedown="pressKey('ArrowUp', true)" onmouseup="pressKey('ArrowUp', false)">▲</button>
+        </div>
+    </div>
 
-function playSound(type) {
-try {
-initAudio();
-if (!audioCtx) return;
-const osc = audioCtx.createOscillator();
-const gain = audioCtx.createGain();
-osc.connect(gain);
-gain.connect(audioCtx.destination);
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
 
-const now = audioCtx.currentTime;
-if (type === 'jump') {
-osc.type = 'sine';
-osc.frequency.setValueAtTime(150, now);
-osc.frequency.exponentialRampToValueAtTime(300, now + 0.1);
-gain.gain.setValueAtTime(0.15, now);
-gain.gain.linearRampToValueAtTime(0.01, now + 0.1);
-osc.start(now);
-osc.stop(now + 0.1);
-} else if (type === 'gem') {
-osc.type = 'triangle';
-osc.frequency.setValueAtTime(400, now);
-osc.frequency.setValueAtTime(800, now + 0.08);
-gain.gain.setValueAtTime(0.2, now);
-gain.gain.linearRampToValueAtTime(0.01, now + 0.2);
-osc.start(now);
-osc.stop(now + 0.2);
-} else if (type === 'win') {
-osc.type = 'square';
-osc.frequency.setValueAtTime(300, now);
-osc.frequency.setValueAtTime(500, now + 0.1);
-osc.frequency.setValueAtTime(700, now + 0.2);
-gain.gain.setValueAtTime(0.15, now);
-gain.gain.linearRampToValueAtTime(0.01, now + 0.35);
-osc.start(now);
-osc.stop(now + 0.35);
-} else if (type === 'die') {
-osc.type = 'sawtooth';
-osc.frequency.setValueAtTime(220, now);
-osc.frequency.linearRampToValueAtTime(80, now + 0.3);
-gain.gain.setValueAtTime(0.25, now);
-gain.gain.linearRampToValueAtTime(0.01, now + 0.3);
-osc.start(now);
-osc.stop(now + 0.3);
-}
-} catch(e) {}
-}
+        let audioCtx = null;
+        function initAudio() {
+            if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        }
 
-// Variáveis do Jogo
-let currentLevel = 1;
-let gameRunning = false;
-let keys = {};
+        function playSound(type) {
+            try {
+                initAudio();
+                if (!audioCtx) return;
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
 
-// Banco de Perguntas de Excel
-const excelQuizzes = [
-{
-q: "Qual fórmula do Excel é utilizada para procurar um valor em uma coluna e retornar outro valor correspondente na mesma linha?",
-options: ["A) SOMASE", "B) PROCV", "C) CONT.SE", "D) MÉDIA"],
-correct: 1
-},
-{
-q: "Como se escreve uma estrutura condicional básica no Excel para testar se uma célula é maior que 10?",
-options: ["A) =SE(A1>10; \"Sim\"; \"Não\")", "B) =CONDICAO(A1>10)", "C) =PROCV(A1>10)", "D) =TESTE(A1>10)"],
-correct: 0
-},
-{
-q: "Qual função soma os valores de um intervalo que atendem a um determinado critério específico?",
-options: ["A) SOMA", "B) SOMASES", "C) SOMASE", "D) CONT.VALORES"],
-correct: 2
-},
-{
-q: "O que significa o erro #DIV/0! em uma fórmula no Excel?",
-options: ["A) Célula não encontrada", "B) Divisão por zero ou por célula vazia", "C) Erro de sintaxe na fórmula", "D) Largura da coluna insuficiente"],
-correct: 1
-},
-{
-q: "Para contar quantas células em um intervalo preenchem um critério específico, qual função usamos?",
-options: ["A) SOMA", "B) CONT.NUM", "C) CONT.SE", "D) PROCV"],
-correct: 2
-}
-];
+                const now = audioCtx.currentTime;
+                if (type === 'jump') {
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(150, now);
+                    osc.frequency.exponentialRampToValueAtTime(300, now + 0.1);
+                    gain.gain.setValueAtTime(0.15, now);
+                    gain.gain.linearRampToValueAtTime(0.01, now + 0.1);
+                    osc.start(now);
+                    osc.stop(now + 0.1);
+                } else if (type === 'gem') {
+                    osc.type = 'triangle';
+                    osc.frequency.setValueAtTime(400, now);
+                    osc.frequency.setValueAtTime(800, now + 0.08);
+                    gain.gain.setValueAtTime(0.2, now);
+                    gain.gain.linearRampToValueAtTime(0.01, now + 0.2);
+                    osc.start(now);
+                    osc.stop(now + 0.2);
+                } else if (type === 'win') {
+                    osc.type = 'square';
+                    osc.frequency.setValueAtTime(300, now);
+                    osc.frequency.setValueAtTime(500, now + 0.1);
+                    osc.frequency.setValueAtTime(700, now + 0.2);
+                    gain.gain.setValueAtTime(0.15, now);
+                    gain.gain.linearRampToValueAtTime(0.01, now + 0.35);
+                    osc.start(now);
+                    osc.stop(now + 0.35);
+                } else if (type === 'die') {
+                    osc.type = 'sawtooth';
+                    osc.frequency.setValueAtTime(220, now);
+                    osc.frequency.linearRampToValueAtTime(80, now + 0.3);
+                    gain.gain.setValueAtTime(0.25, now);
+                    gain.gain.linearRampToValueAtTime(0.01, now + 0.3);
+                    osc.start(now);
+                    osc.stop(now + 0.3);
+                }
+            } catch(e) {}
+        }
 
-let currentQuizIndex = 0;
+        let currentLevel = 1;
+        let gameRunning = false;
+        let keys = {};
+        let levelSeconds = 0;
+        let timerInterval = null;
 
-// Entidades
-const fireboy = {
-x: 50, y: 400, w: 26, h: 34, vx: 0, vy: 0, speed: 3.8, jumpPower: -12.5, grounded: false, color: '#f87171', score: 0
-};
+        function pressKey(code, isPressed) {
+            keys[code] = isPressed;
+        }
 
-const watergirl = {
-x: 90, y: 400, w: 26, h: 34, vx: 0, vy: 0, speed: 3.8, jumpPower: -12.5, grounded: false, color: '#38bdf8', score: 0
-};
+        let boss = { x: -120, y: 360, w: 45, h: 75, speed: 1.15 };
 
-let platforms = [];
-let hazards = [];
-let gems = [];
-let doors = {
-fire: { x: 800, y: 70, w: 32, h: 48, reached: false },
-water: { x: 845, y: 70, w: 32, h: 48, reached: false }
-};
+        const excelQuizzes = [
+            { q: "Qual fórmula do Excel é utilizada para procurar um valor em uma coluna e retornar outro valor correspondente?", options: ["A) SOMASE", "B) PROCV", "C) CONT.SE", "D) MÉDIA"], correct: 1 },
+            { q: "Como se escreve uma estrutura condicional básica no Excel para testar se uma célula é maior que 10?", options: ["A) =SE(A1>10; \"Sim\"; \"Não\")", "B) =CONDICAO(A1>10)", "C) =PROCV(A1>10)", "D) =TESTE(A1>10)"], correct: 0 },
+            { q: "Qual função soma os valores de um intervalo que atendem a um determinado critério específico?", options: ["A) SOMA", "B) SOMASES", "C) SOMASE", "D) CONT.VALORES"], correct: 2 },
+            { q: "O que significa o erro #DIV/0! em uma fórmula no Excel?", options: ["A) Célula não encontrada", "B) Divisão por zero ou por célula vazia", "C) Erro de sintaxe na fórmula", "D) Largura insuficiente"], correct: 1 },
+            { q: "Para contar quantas células em um intervalo preenchem um critério específico, qual função usamos?", options: ["A) SOMA", "B) CONT.NUM", "C) CONT.SE", "D) PROCV"], correct: 2 }
+        ];
 
-// Chuva Digital / Espinhas no Fundo (Efeito Cyberpunk Moderno)
-const backgroundSpines = [];
-for (let i = 0; i < 35; i++) {
-backgroundSpines.push({
-x: Math.random() * 900,
-y: Math.random() * 520,
-length: Math.random() * 25 + 15,
-speed: Math.random() * 1.5 + 0.8,
-opacity: Math.random() * 0.35 + 0.05
-});
-}
+        let currentQuizIndex = 0;
 
-// Escuta de Teclado
-window.addEventListener('keydown', e => { keys[e.code] = true; if(e.code === 'KeyP') togglePause(); });
-window.addEventListener('keyup', e => { keys[e.code] = false; });
+        const fireboy = { x: 40, y: 380, w: 26, h: 36, vx: 0, vy: 0, speed: 3.8, jumpPower: -11.5, grounded: false, score: 0 };
+        const watergirl = { x: 80, y: 380, w: 26, h: 36, vx: 0, vy: 0, speed: 3.8, jumpPower: -11.5, grounded: false, score: 0 };
 
-function startGame() {
-document.getElementById('start-screen').classList.add('hidden');
-currentLevel = 1;
-fireboy.score = 0;
-watergirl.score = 0;
-loadLevel(currentLevel);
-gameRunning = true;
-requestAnimationFrame(gameLoop);
-}
+        let platforms = [];
+        let hazards = []; 
+        let gems = [];    
+        let doors = {
+            fire: { x: 770, y: 70, w: 36, h: 48, reached: false },
+            water: { x: 825, y: 70, w: 36, h: 48, reached: false }
+        };
 
-function loadLevel(levelNum) {
-document.getElementById('level-indicator').innerText = `Fase ${levelNum}`;
+        const backgroundSpines = [];
+        for (let i = 0; i < 25; i++) {
+            backgroundSpines.push({ x: Math.random() * 900, y: Math.random() * 480, speed: Math.random() * 1.5 + 0.5 });
+        }
 
-platforms = [];
-hazards = [];
-gems = [];
+        window.addEventListener('keydown', e => { keys[e.code] = true; });
+        window.addEventListener('keyup', e => { keys[e.code] = false; });
 
-if (levelNum === 1) {
-platforms = [
-{x: 0, y: 480, w: 900, h: 40, type: 'floor'},
-{x: 180, y: 390, w: 180, h: 18, type: 'platform'},
-{x: 440, y: 310, w: 180, h: 18, type: 'platform'},
-{x: 180, y: 220, w: 180, h: 18, type: 'platform'},
-{x: 440, y: 130, w: 180, h: 18, type: 'platform'},
-{x: 760, y: 120, w: 120, h: 18, type: 'platform'}
-];
-hazards = [
-{x: 360, y: 480, w: 80, h: 40, type: 'water'},
-{x: 620, y: 480, w: 80, h: 40, type: 'lava'}
-];
-gems = [
-{x: 260, y: 350, type: 'fire', collected: false},
-{x: 520, y: 270, type: 'water', collected: false},
-{x: 260, y: 180, type: 'fire', collected: false},
-{x: 520, y: 90, type: 'water', collected: false}
-];
-doors.fire.x = 780; doors.fire.y = 72;
-doors.water.x = 830; doors.water.y = 72;
-} else if (levelNum === 2) {
-platforms = [
-{x: 0, y: 480, w: 900, h: 40, type: 'floor'},
-{x: 140, y: 400, w: 160, h: 18, type: 'platform'},
-{x: 350, y: 320, w: 160, h: 18, type: 'platform'},
-{x: 580, y: 240, w: 160, h: 18, type: 'platform'},
-{x: 350, y: 160, w: 160, h: 18, type: 'platform'},
-{x: 760, y: 120, w: 120, h: 18, type: 'platform'}
-];
-hazards = [
-{x: 300, y: 480, w: 50, h: 40, type: 'lava'},
-{x: 530, y: 480, w: 50, h: 40, type: 'water'},
-{x: 510, y: 320, w: 70, h: 18, type: 'toxic'}
-];
-gems = [
-{x: 210, y: 360, type: 'water', collected: false},
-{x: 430, y: 280, type: 'fire', collected: false},
-{x: 650, y: 200, type: 'water', collected: false},
-{x: 430, y: 120, type: 'fire', collected: false}
-];
-doors.fire.x = 780; doors.fire.y = 72;
-doors.water.x = 830; doors.water.y = 72;
-} else {
-platforms = [
-{x: 0, y: 480, w: 900, h: 40, type: 'floor'},
-{x: 120, y: 390 + (levelNum % 20), w: 150, h: 18, type: 'platform'},
-{x: 340, y: 300 - (levelNum % 15), w: 150, h: 18, type: 'platform'},
-{x: 560, y: 210 + (levelNum % 15), w: 150, h: 18, type: 'platform'},
-{x: 340, y: 130, w: 150, h: 18, type: 'platform'},
-{x: 760, y: 120, w: 120, h: 18, type: 'platform'}
-];
-hazards = [
-{x: 270, y: 480, w: 70, h: 40, type: levelNum % 2 === 0 ? 'lava' : 'water'},
-{x: 510, y: 480, w: 70, h: 40, type: 'toxic'}
-];
-gems = [
-{x: 190, y: 350, type: 'fire', collected: false},
-{x: 410, y: 260, type: 'water', collected: false},
-{x: 630, y: 170, type: 'fire', collected: false}
-];
-doors.fire.x = 780; doors.fire.y = 72;
-doors.water.x = 830; doors.water.y = 72;
-}
+        function startGame() {
+            document.getElementById('start-screen').classList.add('hidden');
+            currentLevel = 1;
+            fireboy.score = 0;
+            watergirl.score = 0;
+            loadLevel(currentLevel);
+            gameRunning = true;
+            startTimer();
+            requestAnimationFrame(gameLoop);
+        }
 
-fireboy.x = 40; fireboy.y = 420; fireboy.vx = 0; fireboy.vy = 0;
-watergirl.x = 80; watergirl.y = 420; watergirl.vx = 0; watergirl.vy = 0;
-doors.fire.reached = false;
-doors.water.reached = false;
-}
+        function startTimer() {
+            levelSeconds = 0;
+            document.getElementById('timer-display').innerText = levelSeconds;
+            if (timerInterval) clearInterval(timerInterval);
+            timerInterval = setInterval(() => {
+                if (gameRunning) {
+                    levelSeconds++;
+                    document.getElementById('timer-display').innerText = levelSeconds;
+                }
+            }, 1000);
+        }
 
-function update() {
-if (!gameRunning) return;
+        function loadLevel(levelNum) {
+            document.getElementById('level-indicator').innerText = `Fase ${levelNum}`;
+            startTimer();
+            
+            platforms = [];
+            hazards = [];
+            gems = [];
 
-// Movimentação Fireboy (W A SD)
-if (keys['KeyA']) { fireboy.vx = -fireboy.speed; }
-else if (keys['KeyD']) { fireboy.vx = fireboy.speed; }
-else { fireboy.vx = 0; }
+            platforms.push({x: 0, y: 440, w: 900, h: 40, type: 'floor'});
+            platforms.push({x: 740, y: 118, w: 140, h: 18, type: 'platform'});
 
-if (keys['KeyW'] && fireboy.grounded) {
-fireboy.vy = fireboy.jumpPower;
-fireboy.grounded = false;
-playSound('jump');
-}
+            let numPlatforms = 6;
+            for (let i = 0; i < numPlatforms; i++) {
+                let pWidth = 140 - ((levelNum * i) % 30);
+                let pX = 60 + (i * 110) + ((levelNum * 23 + i * 45) % 80);
+                if (pX > 640) pX = 70 + ((i * 90) % 500);
+                
+                let baseHeight = 360 - (i * 44);
+                let pY = Math.max(140, baseHeight + ((levelNum * 17 * (i + 1)) % 45) - 20);
 
-// Movimentação Watergirl (Setas)
-if (keys['ArrowLeft']) { watergirl.vx = -watergirl.speed; }
-else if (keys['ArrowRight']) { watergirl.vx = watergirl.speed; }
-else { watergirl.vx = 0; }
+                platforms.push({ x: pX, y: pY, w: pWidth, h: 18, type: 'platform' });
 
-if (keys['ArrowUp'] && watergirl.grounded) {
-watergirl.vy = watergirl.jumpPower;
-watergirl.grounded = false;
-playSound('jump');
-}
+                if (i % 2 === 0) {
+                    gems.push({ x: pX + pWidth / 2 - 6, y: pY - 26, type: ((levelNum + i) % 2 === 0) ? 'fire' : 'water', collected: false });
+                }
+            }
 
-applyPhysics(fireboy);
-applyPhysics(watergirl);
+            let hazardTypes = ['lava', 'water', 'toxic'];
+            let hazardCount = 3;
+            for (let h = 0; h < hazardCount; h++) {
+                let hX = 140 + (h * 180) + ((levelNum * 37) % 60);
+                hazards.push({ x: hX, y: 440, w: 55, h: 40, type: hazardTypes[(h + levelNum) % hazardTypes.length] });
+            }
 
-handleCharCollision(fireboy, watergirl);
-handleCharCollision(watergirl, fireboy);
+            boss.x = -130;
+            boss.y = 360;
+            boss.speed = 1.1 + (levelNum * 0.04);
 
-// Animação e queda das espinhas no fundo
-backgroundSpines.forEach(spine => {
-spine.y += spine.speed;
-if (spine.y > canvas.height) {
-spine.y = -30;
-spine.x = Math.random() * canvas.width;
-}
-});
+            doors.fire.x = 765; doors.fire.y = 70;
+            doors.water.x = 820; doors.water.y = 70;
 
-// Coleta de Gemas
-gems.forEach(gem => {
-if (!gem.collected) {
-if (gem.type === 'fire' && checkOverlap(fireboy, gem)) {
-gem.collected = true;
-fireboy.score += 10;
-document.getElementById('fire-score').innerText = fireboy.score;
-playSound('gem');
-}
-if (gem.type === 'water' && checkOverlap(watergirl, gem)) {
-gem.collected = true;
-watergirl.score += 10;
-document.getElementById('water-score').innerText = watergirl.score;
-playSound('gem');
-}
-}
-});
+            fireboy.x = 40; fireboy.y = 390; fireboy.vx = 0; fireboy.vy = 0;
+            watergirl.x = 80; watergirl.y = 390; watergirl.vx = 0; watergirl.vy = 0;
+            doors.fire.reached = false;
+            doors.water.reached = false;
+        }
 
-// Checagem de Perigos
-hazards.forEach(h => {
-if (checkHazard(fireboy, h)) {
-if (h.type === 'lava') { }
-else { triggerGameOver("O Fireboy caiu na água ou lama tóxica!"); }
-}
-if (checkHazard(watergirl, h)) {
-if (h.type === 'water') { }
-else { triggerGameOver("A Watergirl caiu na lava ou lama tóxica!"); }
-}
-});
+        function update() {
+            if (!gameRunning) return;
 
-doors.fire.reached = checkOverlap(fireboy, doors.fire);
-doors.water.reached = checkOverlap(watergirl, doors.water);
+            if (keys['KeyA']) { fireboy.vx = -fireboy.speed; }
+            else if (keys['KeyD']) { fireboy.vx = fireboy.speed; }
+            else { fireboy.vx = 0; }
 
-if (doors.fire.reached && doors.water.reached) {
-gameRunning = false;
-playSound('win');
-setTimeout(handleLevelComplete, 500);
-}
-}
+            if (keys['KeyW'] && fireboy.grounded) {
+                fireboy.vy = fireboy.jumpPower;
+                fireboy.grounded = false;
+                playSound('jump');
+            }
 
-function applyPhysics(ent) {
-ent.vy += 0.45;
-ent.x += ent.vx;
-resolveCollisionsX(ent);
-ent.y += ent.vy;
-ent.grounded = false;
-resolveCollisionsY(ent);
+            if (keys['ArrowLeft']) { watergirl.vx = -watergirl.speed; }
+            else if (keys['ArrowRight']) { watergirl.vx = watergirl.speed; }
+            else { watergirl.vx = 0; }
 
-if (ent.x < 0) ent.x = 0;
-if (ent.x + ent.w > canvas.width) ent.x = canvas.width - ent.w;
-if (ent.y > canvas.height + 100) {
-triggerGameOver("Um dos personagens caiu do mapa!");
-}
-}
+            if (keys['ArrowUp'] && watergirl.grounded) {
+                watergirl.vy = watergirl.jumpPower;
+                watergirl.grounded = false;
+                playSound('jump');
+            }
 
-function resolveCollisionsX(ent) {
-platforms.forEach(p => {
-if (rectIntersect(ent, p)) {
-if (ent.vx > 0) ent.x = p.x - ent.w;
-else if (ent.vx < 0) ent.x = p.x + p.w;
-}
-});
-}
+            applyPhysics(fireboy);
+            applyPhysics(watergirl);
 
-function resolveCollisionsY(ent) {
-platforms.forEach(p => {
-if (rectIntersect(ent, p)) {
-if (ent.vy > 0) {
-ent.y = p.y - ent.h;
-ent.vy = 0;
-ent.grounded = true;
-} else if (ent.vy < 0) {
-ent.y = p.y + p.h;
-ent.vy = 0;
-}
-}
-});
-}
+            handleCharCollision(fireboy, watergirl);
+            handleCharCollision(watergirl, fireboy);
 
-function handleCharCollision(c1, c2) {
-if (rectIntersect(c1, c2)) {
-if (c1.vy > 0 && c1.y + c1.h - c1.vy <= c2.y + 10) {
-c1.y = c2.y - c1.h;
-c1.vy = 0;
-c1.grounded = true;
-}
-}
-}
+            boss.x += boss.speed;
+            if (checkOverlap(fireboy, boss) || checkOverlap(watergirl, boss)) {
+                triggerGameOver("O Chefe Corrompido (Vírus) alcançou vocês!");
+            }
 
-function checkOverlap(rect1, rect2) {
-return rect1.x < rect2.x + (rect2.w || 16) &&
-rect1.x + rect1.w > rect2.x &&
-rect1.y < rect2.y + (rect2.h || 16) &&
-rect1.y + rect1.h > rect2.y;
-}
+            gems.forEach(gem => {
+                if (!gem.collected) {
+                    if (gem.type === 'fire' && checkOverlap(fireboy, gem)) {
+                        gem.collected = true; fireboy.score += 10;
+                        document.getElementById('fire-score').innerText = fireboy.score; playSound('gem');
+                    }
+                    if (gem.type === 'water' && checkOverlap(watergirl, gem)) {
+                        gem.collected = true; watergirl.score += 10;
+                        document.getElementById('water-score').innerText = watergirl.score; playSound('gem');
+                    }
+                }
+            });
 
-function checkHazard(ent, h) {
-const feet = { x: ent.x + 4, y: ent.y + ent.h - 6, w: ent.w - 8, h: 6 };
-return rectIntersect(feet, h);
-}
+            hazards.forEach(h => {
+                if (checkHazard(fireboy, h) && (h.type === 'water' || h.type === 'toxic')) {
+                    triggerGameOver("O Fireboy encostou na água ou tóxico!");
+                }
+                if (checkHazard(watergirl, h) && (h.type === 'lava' || h.type === 'toxic')) {
+                    triggerGameOver("A Watergirl encostou na lava ou tóxico!");
+                }
+            });
 
-function rectIntersect(r1, r2) {
-return r1.x < r2.x + r2.w && r1.x + r1.w > r2.x &&
-r1.y < r2.y + r2.h && r1.y + r1.h > r2.y;
-}
+            doors.fire.reached = checkOverlap(fireboy, doors.fire);
+            doors.water.reached = checkOverlap(watergirl, doors.water);
 
-function triggerGameOver(msg) {
-gameRunning = false;
-playSound('die');
-document.getElementById('end-title').innerText = "Fim de Jogo";
-document.getElementById('end-subtitle').innerText = msg;
-document.getElementById('gameover-screen').classList.remove('hidden');
-}
+            if (doors.fire.reached && doors.water.reached) {
+                gameRunning = false;
+                if (timerInterval) clearInterval(timerInterval);
+                let timeBonus = Math.max(10, 100 - (levelSeconds * 2));
+                fireboy.score += timeBonus; watergirl.score += timeBonus;
+                playSound('win');
+                setTimeout(handleLevelComplete, 500);
+            }
+        }
 
-function restartLevel() {
-document.getElementById('gameover-screen').classList.add('hidden');
-loadLevel(currentLevel);
-gameRunning = true;
-requestAnimationFrame(gameLoop);
-}
+        function applyPhysics(ent) {
+            ent.vy += 0.45;
+            ent.x += ent.vx;
+            resolveCollisionsX(ent);
+            ent.y += ent.vy;
+            ent.grounded = false;
+            resolveCollisionsY(ent);
 
-function handleLevelComplete() {
-if (currentLevel % 3 === 0) {
-showQuiz();
-} else {
-currentLevel++;
-loadLevel(currentLevel);
-gameRunning = true;
-requestAnimationFrame(gameLoop);
-}
-}
+            if (ent.x < 0) ent.x = 0;
+            if (ent.x + ent.w > canvas.width) ent.x = canvas.width - ent.w;
+            if (ent.y > canvas.height + 100) triggerGameOver("Alguém caiu do mapa!");
+        }
 
-function showQuiz() {
-const quiz = excelQuizzes[Math.floor(Math.random() * excelQuizzes.length)];
-currentQuizIndex = quiz.correct;
-document.getElementById('quiz-q-text').innerText = quiz.q;
+        function resolveCollisionsX(ent) {
+            platforms.forEach(p => {
+                if (rectIntersect(ent, p)) {
+                    if (ent.vx > 0) ent.x = p.x - ent.w;
+                    else if (ent.vx < 0) ent.x = p.x + p.w;
+                }
+            });
+        }
 
-const container = document.getElementById('quiz-options-container');
-container.innerHTML = '';
-quiz.options.forEach((opt, idx) => {
-const btn = document.createElement('div');
-btn.className = 'quiz-option';
-btn.innerText = opt;
-btn.onclick = () => answerQuiz(idx === currentQuizIndex);
-container.appendChild(btn);
-});
+        function resolveCollisionsY(ent) {
+            platforms.forEach(p => {
+                if (rectIntersect(ent, p)) {
+                    if (ent.vy > 0) {
+                        ent.y = p.y - ent.h; ent.vy = 0; ent.grounded = true;
+                    } else if (ent.vy < 0) {
+                        ent.y = p.y + p.h; ent.vy = 0;
+                    }
+                }
+            });
+        }
 
-document.getElementById('quiz-screen').classList.remove('hidden');
-}
+        function handleCharCollision(c1, c2) {
+            if (rectIntersect(c1, c2) && c1.vy > 0 && c1.y + c1.h - c1.vy <= c2.y + 10) {
+                c1.y = c2.y - c1.h; c1.vy = 0; c1.grounded = true;
+            }
+        }
 
-function answerQuiz(correct) {
-document.getElementById('quiz-screen').classList.add('hidden');
-if (correct) {
-playSound('win');
-currentLevel++;
-loadLevel(currentLevel);
-gameRunning = true;
-requestAnimationFrame(gameLoop);
-} else {
-triggerGameWonOrSpecial("Resposta incorreta no Quiz de Excel! Tente avançar novamente.");
-}
-}
+        function checkOverlap(r1, r2) {
+            return r1.x < r2.x + (r2.w || 16) && r1.x + r1.w > r2.x && r1.y < r2.y + (r2.h || 16) && r1.y + r1.h > r2.y;
+        }
 
-function triggerGameWonOrSpecial(msg) {
-gameRunning = false;
-playSound('die');
-document.getElementById('end-title').innerText = "Ops! Quase lá";
-document.getElementById('end-subtitle').innerText = msg;
-document.getElementById('gameover-screen').classList.remove('hidden');
-}
+        function checkHazard(ent, h) {
+            return rectIntersect({ x: ent.x + 4, y: ent.y + ent.h - 6, w: ent.w - 8, h: 6 }, h);
+        }
 
-function togglePause() {
-if (!document.getElementById('start-screen').classList.contains('hidden') ||
-!document.getElementById('quiz-screen').classList.contains('hidden')) return;
-gameRunning = !gameRunning;
-if (gameRunning) requestAnimationFrame(gameLoop);
-}
+        function rectIntersect(r1, r2) {
+            return r1.x < r2.x + r2.w && r1.x + r1.w > r2.x && r1.y < r2.y + r2.h && r1.y + r1.h > r2.y;
+        }
 
-// Renderização Gráfica Cyberpunk Neon com Espinhas/Raios Caindo
-function render() {
-ctx.clearRect(0, 0, canvas.width, canvas.height);
+        function triggerGameOver(msg) {
+            gameRunning = false;
+            if (timerInterval) clearInterval(timerInterval);
+            playSound('die');
+            document.getElementById('end-title').innerText = "Fim de Jogo";
+            document.getElementById('end-subtitle').innerText = msg;
+            document.getElementById('gameover-screen').classList.remove('hidden');
+        }
 
-// Grid tecnológico de fundo
-ctx.strokeStyle = 'rgba(56, 189, 248, 0.035)';
-ctx.lineWidth = 1;
-for (let x = 0; x < canvas.width; x += 35) {
-ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, canvas.height); ctx.stroke();
-}
-for (let y = 0; y < canvas.height; y += 35) {
-ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(canvas.width, y); ctx.stroke();
-}
+        function restartLevel() {
+            document.getElementById('gameover-screen').classList.add('hidden');
+            loadLevel(currentLevel);
+            gameRunning = true;
+            requestAnimationFrame(gameLoop);
+        }
 
-// Renderizando as espinhas/linhas neon caindo no fundo
-backgroundSpines.forEach(spine => {
-ctx.strokeStyle = 'rgba(167, 139, 250, ' + spine.opacity + ')';
-ctx.lineWidth = 1.5;
-ctx.shadowColor = '#a78bfa';
-ctx.shadowBlur = 6;
-ctx.beginPath();
-ctx.moveTo(spine.x, spine.y);
-ctx.lineTo(spine.x, spine.y + spine.length);
-ctx.stroke();
-ctx.shadowBlur = 0;
-});
+        function handleLevelComplete() {
+            if (currentLevel % 2 === 0) {
+                showQuiz();
+            } else {
+                currentLevel++; loadLevel(currentLevel);
+                gameRunning = true; requestAnimationFrame(gameLoop);
+            }
+        }
 
-// Plataformas estilo Glassmorphism Neon
-platforms.forEach(p => {
-ctx.fillStyle = p.type === 'floor' ? '#0f172a' : '#1e293b';
-ctx.fillRect(p.x, p.y, p.w, p.h);
-ctx.strokeStyle = '#38bdf8';
-ctx.lineWidth = 1.5;
-ctx.shadowColor = '#38bdf8';
-ctx.shadowBlur = 4;
-ctx.strokeRect(p.x, p.y, p.w, p.h);
-ctx.shadowBlur = 0;
-});
+        function showQuiz() {
+            const quiz = excelQuizzes[Math.floor(Math.random() * excelQuizzes.length)];
+            currentQuizIndex = quiz.correct;
+            document.getElementById('quiz-q-text').innerText = quiz.q;
+            
+            const container = document.getElementById('quiz-options-container');
+            container.innerHTML = '';
+            quiz.options.forEach((opt, idx) => {
+                const btn = document.createElement('div');
+                btn.className = 'quiz-option';
+                btn.innerText = opt;
+                btn.onclick = () => answerQuiz(idx === currentQuizIndex, quiz.options[currentQuizIndex]);
+                container.appendChild(btn);
+            });
+            document.getElementById('quiz-screen').classList.remove('hidden');
+        }
 
-// Perigos (Lava, Água, Tóxico)
-hazards.forEach(h => {
-if (h.type === 'lava') {
-ctx.fillStyle = '#ef4444';
-ctx.shadowColor = '#ef4444'; ctx.shadowBlur = 10;
-} else if (h.type === 'water') {
-ctx.fillStyle = '#0ea5e9';
-ctx.shadowColor = '#0ea5e9'; ctx.shadowBlur = 10;
-} else {
-ctx.fillStyle = '#22c55e';
-ctx.shadowColor = '#22c55e'; ctx.shadowBlur = 10;
-}
-ctx.fillRect(h.x, h.y, h.w, h.h);
-ctx.shadowBlur = 0;
-});
+        function answerQuiz(correct, correctText) {
+            document.getElementById('quiz-screen').classList.add('hidden');
+            if (correct) {
+                playSound('win'); currentLevel++; loadLevel(currentLevel);
+                gameRunning = true; requestAnimationFrame(gameLoop);
+            } else {
+                triggerGameOver(`Incorreto! Era: ${correctText}`);
+            }
+        }
 
-// Gemas Elementares
-gems.forEach(g => {
-if (!g.collected) {
-ctx.save();
-ctx.translate(g.x + 8, g.y + 8);
-ctx.rotate(Math.PI / 4);
-ctx.fillStyle = g.type === 'fire' ? '#f87171' : '#38bdf8';
-ctx.shadowColor = ctx.fillStyle; ctx.shadowBlur = 12;
-ctx.fillRect(-6, -6, 12, 12);
-ctx.restore();
-}
-});
+        function drawCharacter(ent, isFire) {
+            ctx.save();
+            ctx.translate(ent.x, ent.y);
+            const col = isFire ? '#f87171' : '#38bdf8';
+            ctx.fillStyle = col;
+            ctx.fillRect(4, 12, 18, 16);
+            ctx.fillRect(3, 2, 20, 12);
+            ctx.fillStyle = '#0f172a';
+            ctx.fillRect(7, 5, 12, 4);
+            ctx.restore();
+        }
 
-// Portas Finais
-drawDoor(doors.fire, '#f87171', doors.fire.reached);
-drawDoor(doors.water, '#38bdf8', doors.water.reached);
+        function render() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-// Fireboy
-ctx.fillStyle = fireboy.color;
-ctx.shadowColor = fireboy.color; ctx.shadowBlur = 14;
-ctx.fillRect(fireboy.x, fireboy.y, fireboy.w, fireboy.h);
-ctx.shadowBlur = 0;
+            platforms.forEach(p => {
+                ctx.fillStyle = p.type === 'floor' ? '#0f172a' : '#1e293b';
+                ctx.fillRect(p.x, p.y, p.w, p.h);
+                ctx.strokeStyle = '#38bdf8'; ctx.lineWidth = 1.5;
+                ctx.strokeRect(p.x, p.y, p.w, p.h);
+            });
 
-// Watergirl
-ctx.fillStyle = watergirl.color;
-ctx.shadowColor = watergirl.color; ctx.shadowBlur = 14;
-ctx.fillRect(watergirl.x, watergirl.y, watergirl.w, watergirl.h);
-ctx.shadowBlur = 0;
-}
+            hazards.forEach(h => {
+                ctx.fillStyle = h.type === 'lava' ? '#ef4444' : h.type === 'water' ? '#0ea5e9' : '#22c55e';
+                ctx.fillRect(h.x, h.y, h.w, h.h);
+            });
 
-function drawDoor(door, color, reached) {
-ctx.strokeStyle = color;
-ctx.lineWidth = 2;
-ctx.shadowColor = color;
-ctx.shadowBlur = reached ? 18 : 6;
-ctx.strokeRect(door.x, door.y, door.w, door.h);
-ctx.fillStyle = reached ? color : 'rgba(15, 23, 42, 0.85)';
-ctx.fillRect(door.x, door.y, door.w, door.h);
-ctx.shadowBlur = 0;
+            ctx.fillStyle = '#a855f7';
+            ctx.fillRect(boss.x, boss.y, boss.w, boss.h);
+            ctx.fillStyle = '#facc15';
+            ctx.fillRect(boss.x + 8, boss.y + 12, 8, 8);
+            ctx.fillRect(boss.x + 28, boss.y + 12, 8, 8);
 
-if (reached) {
-ctx.fillStyle = '#ffffff';
-ctx.font = '10px sans-serif';
-ctx.fillText('OK', door.x + 7, door.y + 28);
-}
-}
+            gems.forEach(g => {
+                if (!g.collected) {
+                    ctx.save();
+                    ctx.translate(g.x + 6, g.y + 6);
+                    ctx.rotate(Math.PI / 4);
+                    ctx.fillStyle = g.type === 'fire' ? '#f87171' : '#38bdf8';
+                    ctx.fillRect(-5, -5, 10, 10);
+                    ctx.restore();
+                }
+            });
 
-function gameLoop() {
-update();
-render();
-if (gameRunning) {
-requestAnimationFrame(gameLoop);
-}
-}
-</script>
+            drawDoor(doors.fire, '#f87171', doors.fire.reached);
+            drawDoor(doors.water, '#38bdf8', doors.water.reached);
+
+            drawCharacter(fireboy, true);
+            drawCharacter(watergirl, false);
+        }
+
+        function drawDoor(door, color, reached) {
+            ctx.strokeStyle = color; ctx.lineWidth = 2;
+            ctx.strokeRect(door.x, door.y, door.w, door.h);
+            ctx.fillStyle = reached ? color : 'rgba(15, 23, 42, 0.85)';
+            ctx.fillRect(door.x, door.y, door.w, door.h);
+        }
+
+        function gameLoop() {
+            update();
+            render();
+            if (gameRunning) requestAnimationFrame(gameLoop);
+        }
+    </script>
 </body>
 </html>
